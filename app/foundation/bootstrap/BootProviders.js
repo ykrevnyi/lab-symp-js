@@ -4,8 +4,8 @@ function BootProviders () {
   // body...
 }
 
-BootProviders.prototype.boot = function() {
-  console.log('booting providers');
+BootProviders.prototype.boot = function(app) {
+  app.boot();
 };
 
 module.exports = BootProviders;

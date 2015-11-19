@@ -7,12 +7,12 @@ function Kernel (Application, Router) {
   this.router = Router;
 
   this.bootstrappers = [
-    basePath('/app/foundation/bootstrap/DetectEnvironment'),
-    basePath('/app/foundation/bootstrap/LoadConfiguration'),
-    basePath('/app/foundation/bootstrap/ConfigureLogging'),
-    basePath('/app/foundation/bootstrap/HandleExceptions'),
-    basePath('/app/foundation/bootstrap/RegisterProviders'),
-    basePath('/app/foundation/bootstrap/BootProviders')
+    basePath('app/foundation/bootstrap/DetectEnvironment'),
+    basePath('app/foundation/bootstrap/LoadConfiguration'),
+    basePath('app/foundation/bootstrap/ConfigureLogging'),
+    basePath('app/foundation/bootstrap/HandleExceptions'),
+    basePath('app/foundation/bootstrap/RegisterProviders'),
+    basePath('app/foundation/bootstrap/BootProviders')
   ];
   this.routeMiddlewares = [];
 

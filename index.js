@@ -2,8 +2,8 @@
 
 require('./helpers');
 
-require(basePath('/bootstrap/autoload'));
-var app = require(basePath('/bootstrap/app'));
+require(basePath('bootstrap/autoload'));
+var app = require(basePath('bootstrap/app'));
 
 var kernel = app.make('app/http/Kernel');
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var Config = require(basePath('/app/config/Repository'))
+var Config = require(basePath('app/config/Repository'))
 
 function LoadConfiguration() {
   // body...
@@ -17,10 +17,10 @@ LoadConfiguration.prototype.boot = function (app) {
 };
 
 LoadConfiguration.prototype.load = function (configRepository) {
-  var configs = getFiles(basePath('/config'));
+  var configs = getFiles(basePath('config'));
 
   configs.forEach(function (configPath) {
-    var relativePath = configPath.replace(basePath('/config/'), '');
+    var relativePath = configPath.replace(basePath('config/'), '');
     var pathList = relativePath.split('/');
 
     // If we don't have enough items or more then 2

@@ -5,7 +5,7 @@ var _ = require('lodash');
 var path = require('path');
 
 global.basePath = function (path) {
-  return __dirname + path;
+  return __dirname + '/' + path;
 };
 
 global.env = function (key, defaultValue) {
@@ -13,14 +13,20 @@ global.env = function (key, defaultValue) {
 };
 
 global.route = function (route) {
-  var app = require(basePath('/app/foundation/Application'));
+  var app = require(basePath('app/foundation/Application'));
 
   return app.make('Router').route(route);
 };
 
+global.config = function (path, defaultValue) {
+  var app = require(basePath('app/foundation/Application'));
+
+  return app.make('Config').get(path, defaultValue);
+};
+
 global.exception = function (exceptionName) {
-  var app = require(basePath('/app/foundation/Application'));
-  var exceptionInstance = require(basePath('/app/exceptions/' + exceptionName));
+  var app = require(basePath('app/foundation/Application'));
+  var exceptionInstance = require(basePath('app/exceptions/' + exceptionName));
 
   throw new exceptionInstance;
 };

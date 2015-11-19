@@ -4,8 +4,8 @@ function RegisterProviders () {
   // body...
 }
 
-RegisterProviders.prototype.boot = function() {
-  console.log('register providers');
+RegisterProviders.prototype.boot = function(app) {
+  app.registerConfiguredProviders();
 };
 
 module.exports = RegisterProviders;

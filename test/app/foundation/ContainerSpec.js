@@ -1,7 +1,7 @@
 'use strict';
 
 require('should');
-var Container = require(basePath('/app/foundation/Container'));
+var Container = require(basePath('app/foundation/Container'));
 
 describe('<Unit Test>', function () {
   describe('Container', function () {

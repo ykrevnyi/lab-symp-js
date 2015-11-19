@@ -1,6 +1,6 @@
 'use strict';
 
-var Exception = require(basePath('/app/exceptions/Exception'));
+var Exception = require(basePath('app/exceptions/Exception'));
 
 function HttpErrorException(message) {
   this.name = 'HttpErrorException';
