@@ -52,7 +52,8 @@ function Container() {
     return this.bind(abstract, concrete, true);
   };
 
-  this.make = function (abstract) {
+  this.make = function (abstract, parameters) {
+    parameters = parameters || [];
     abstract = this.getAlias(abstract);
 
     // If an instance of the type is currently being managed as a singleton we'll
@@ -67,7 +68,9 @@ function Container() {
     // We're ready to instantiate an instance of the concrete type registered for
     // the binding. This will instantiate the types, as well as resolve any of
     // its "nested" dependencies recursively until all have gotten resolved.
-    var object = this.isBuildable(concrete, abstract) ? this.build(concrete) : this.make(concrete);
+    var object = this.isBuildable(concrete, abstract) 
+      ? this.build(concrete, parameters) 
+      : this.make(concrete, parameters);
 
     // If the requested type is registered as a singleton we'll want to cache off
     // the instances in "memory" so we can return it later without creating an
@@ -101,7 +104,7 @@ function Container() {
    *
    * @return Object
    */
-  this.build = function (concrete) {
+  this.build = function (concrete, parameters) {
     if (this.needAutoInject(concrete)) {
       var className = concrete.replace(/\+/, '');
       var module = require(className);
@@ -112,7 +115,7 @@ function Container() {
     // Get dependencies
     var constructor = concrete;
     var dependencyArguments = this.parseFunctionArguments(constructor);
-    var instances = this.getDependencies(dependencyArguments);
+    var instances = this.getDependencies(dependencyArguments, parameters);
 
     return this.instantiateClass(concrete, instances);
   };
@@ -142,12 +145,16 @@ function Container() {
    *
    * @return Array
    */
-  this.getDependencies = function (dependencyArguments) {
+  this.getDependencies = function (dependencyArguments, parameters) {
     var dependencies = [];
 
-    for (var i = 0; i < dependencyArguments.length; i++) {
-      dependencies.push(this.make(dependencyArguments[i]));
-    }
+    dependencyArguments.forEach(function(dependency) {
+      if (parameters[dependency] !== undefined) {
+        dependencies.push(parameters[dependency]);
+      } else {
+        dependencies.push(this.make(dependency));
+      };
+    }.bind(this));
 
     return dependencies;
   };
@@ -249,6 +256,83 @@ function Container() {
    */
   this.isAlias = function(abstract) {
     return this.aliases[abstract];
+  };
+
+  /**
+   * Call the given Closure / class@method and inject its dependencies.
+   *
+   * @param  {Function} callback      [description]
+   * @param  {[type]}   params        [description]
+   * @param  {[type]}   defaultMethod [description]
+   * @return {[type]}                 [description]
+   */
+  this.call = function(callback, parameters, defaultMethod) {
+    parameters = parameters || [];
+
+    if (this.isCallableWithAtSign(callback) || defaultMethod) {
+      return this.callClass(callback, parameters, defaultMethod);
+    };
+
+    var dependencies = this.getMethodDependencies(callback, parameters);
+
+    if (typeof callback === 'function') {
+      return callback.apply(callback, dependencies);
+    };
+
+    return callback[0][callback[1]].apply(callback[0], dependencies);
+  };
+
+  this.getMethodDependencies = function(callback, parameters) {
+    var dependencies = [];
+
+    this.getCallRefrector(callback).forEach(function(parameter) {
+      this.addDependencyForCallParameter(parameter, parameters, dependencies);
+    }.bind(this));
+
+    return dependencies;
+  };
+
+  this.addDependencyForCallParameter = function(parameter, parameters, dependencies) {
+    if (parameters[parameter] !== undefined) {
+      dependencies.push(parameters[parameter]);
+
+      delete parameters[parameter];
+    } else {
+      dependencies.push(this.make(parameter, parameters));
+    };
+  };
+
+  this.getCallRefrector = function(callback) {
+    if (typeof callback === 'function') {
+      return this.parseFunctionArguments(callback);
+    };
+
+    return this.parseFunctionArguments(callback[0][callback[1]]);
+  };
+
+  /**
+   * Determine if the given string is in Class@method syntax.
+   *
+   * @param  {Function} callback Callback to be called
+   * @return {Boolean}
+   */
+  this.isCallableWithAtSign = function(callback) {
+    if (typeof callback !== 'string') {
+      return false;
+    };
+
+    return callback.match(/@/i);
+  };
+
+  this.callClass = function(target, parameters, defaultMethod) {
+    var segments = target.split('@');
+    var method = segments.length === 2 ? segments[1] : defaultMethod;
+
+    if ( ! method) {
+      return exception('InvalidArgumentException', 'Method is not provided.');
+    }
+
+    return this.call([this.make(segments[0], parameters), method], parameters);
   };
 
   /*

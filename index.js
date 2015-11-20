@@ -14,6 +14,10 @@ route('/new1').get(function(req, res) {
   res.send(response)
 });
 
+app.call(function(Application) {
+  console.log('hellllo guys');
+});
+
 // setTimeout(function() {
 //   throw new Error('try to handle me');
 // }, 2000);

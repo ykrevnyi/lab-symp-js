@@ -152,6 +152,68 @@ describe('<Unit Test>', function () {
       ioc.make('foo').hello.should.be.eql('world');
     });
 
+    it('can call closure with dependencies', function () {
+      ioc.instance('foobar', 'test value');
+      ioc.instance('barfoo', 'demo value');
+
+      ioc.call(function (id, foobar, barfoo) {
+        foobar.should.be.equal('test value');
+        barfoo.should.be.equal('demo value');
+        id.should.be.eql('new id');
+      }, {id: 'new id'});
+    });
+
+    it('resolves class with parameters', function () {
+      ioc.instance('foo', 'bar');
+      ioc.instance('bar', 'baz');
+
+      ioc.bind('testing', function(bar, id, foo) {
+        this.bar = bar;
+        this.id = id;
+        this.foo = foo;
+      });
+
+      var result = ioc.make('testing', {
+        id: 'some id'
+      });
+
+      result.bar.should.be.eql('baz');
+      result.id.should.be.eql('some id');
+      result.foo.should.be.eql('bar');
+    });
+
+    it('can resolve class@method call via AT sign', function () {
+      ioc.instance('foo', 'bar');
+      ioc.instance('newfoo', 'baz');
+
+      ioc.bind('TestFunctionAtSignCall', function(title, foo) {
+        this.foo = foo;
+        this.title = title;
+
+        this.sayHello = function(id, newfoo) {
+          this.id = id;
+          this.newfoo = newfoo;
+
+          return {
+            foo: this.foo,
+            newfoo: this.newfoo,
+            id: this.id,
+            title: this.title
+          }
+        };
+      });
+
+      var result = ioc.call('TestFunctionAtSignCall@sayHello', {
+        id: 'test id',
+        title: 'test title'
+      });
+
+      result.foo.should.be.eql('bar');
+      result.newfoo.should.be.eql('baz');
+      result.id.should.be.eql('test id');
+      result.title.should.be.eql('test title');
+    });
+
     /*
      * Config
      */

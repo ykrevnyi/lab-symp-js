@@ -5,7 +5,7 @@ var express = require('express');
 function Router () {
   this.express = express();
 
-  this.express.listen(3536);
+  // this.express.listen(3536);
 }
 
 Router.prototype.route = function(route) {
