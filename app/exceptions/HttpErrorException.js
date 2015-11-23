@@ -2,7 +2,7 @@
 
 var Exception = require(basePath('app/exceptions/Exception'));
 
-function HttpErrorException(message) {
+function HttpErrorException() {
   this.name = 'HttpErrorException';
   Exception.apply(this, arguments);
 }

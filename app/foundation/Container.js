@@ -261,10 +261,11 @@ function Container() {
   /**
    * Call the given Closure / class@method and inject its dependencies.
    *
-   * @param  {Function} callback      [description]
-   * @param  {[type]}   params        [description]
-   * @param  {[type]}   defaultMethod [description]
-   * @return {[type]}                 [description]
+   * @param  {Function|String} callback      Callback to be called
+   *                                         Method to be executed
+   * @param  {Array}           parameters    Parameters
+   * @param  {String}          defaultMethod Method to execute by default
+   * @return {*}                             Result of closure/method call
    */
   this.call = function(callback, parameters, defaultMethod) {
     parameters = parameters || [];
@@ -275,13 +276,36 @@ function Container() {
 
     var dependencies = this.getMethodDependencies(callback, parameters);
 
+    return this.executeCallable(callback, dependencies);
+  };
+
+  /**
+   * Execute simple callback or call a method under instance
+   * with custom arguments.
+   *
+   * @param  {Function|Array} callback     Callback or [instance, method]
+   * @param  {Object}         dependencies List of arguments to be passed
+   * @return {*}                           Result of closure/method call
+   */
+  this.executeCallable = function(callback, dependencies) {
     if (typeof callback === 'function') {
       return callback.apply(callback, dependencies);
     };
 
-    return callback[0][callback[1]].apply(callback[0], dependencies);
+    var instance = callback[0];
+    var method = callback[1];
+
+    return instance[method].apply(instance, dependencies);
   };
 
+  /**
+   * Resolve method dependencies and merge with parameters.
+   *
+   * @param  {Function|String} callback    Callback to be called
+   *                                       Method to be executed
+   * @param  {Object}          parameters  List of arguments to be passed
+   * @return {Array}                       List of resolved dependensies + merged parameters
+   */
   this.getMethodDependencies = function(callback, parameters) {
     var dependencies = [];
 
@@ -292,6 +316,13 @@ function Container() {
     return dependencies;
   };
 
+  /**
+   * Merge dependencies with given parameters.
+   *
+   * @param {String} parameter    Parameter/dependency name
+   * @param {[type]} parameters   [description]
+   * @param {[type]} dependencies [description]
+   */
   this.addDependencyForCallParameter = function(parameter, parameters, dependencies) {
     if (parameters[parameter] !== undefined) {
       dependencies.push(parameters[parameter]);
@@ -307,7 +338,10 @@ function Container() {
       return this.parseFunctionArguments(callback);
     };
 
-    return this.parseFunctionArguments(callback[0][callback[1]]);
+    var instance = callback[0];
+    var method = callback[1];
+
+    return this.parseFunctionArguments(instance[method]);
   };
 
   /**

@@ -14,6 +14,9 @@ function Kernel (Application, Router) {
     basePath('app/foundation/bootstrap/RegisterProviders'),
     basePath('app/foundation/bootstrap/BootProviders')
   ];
+  this.middlewares = [
+    basePath('app/http/middleware/CheckForMaintenanceMode')
+  ];
   this.routeMiddlewares = [];
 
   this.routeMiddlewares.forEach(function(middleware, route) {
@@ -43,14 +46,29 @@ Kernel.prototype.handle = function(req) {
     };
     
   }
-
+  
   return response;
 };
 
 Kernel.prototype.sendRequestThroughRouter = function(req) {
   this.bootstrap();
 
+  this.middlewares.forEach(function(middlewarePath) {
+    var middleware = this.app.make(middlewarePath);
+
+    this.router.middleware(middleware.handle.bind(this));
+  }.bind(this));
+
   return 'sendRequestThroughRouter';
+};
+
+Kernel.prototype.dispatchToRouter = function() {
+  return function dispatchToRouter (request) {
+    this.app.instance('Request', request);
+
+    console.log('dispatch to router');
+    // return this.router.dispatch(request);
+  }.bind(this);
 };
 
 Kernel.prototype.bootstrap = function() {

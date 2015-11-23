@@ -73,14 +73,13 @@ Application.prototype.boot = function() {
 };
 
 Application.prototype.bootProvider = function(provider) {
-  console.log('TODO: ');
-  console.log('TODO: ');
-  console.log('TODO: implement provider.boot() with DI availability');
-  console.log('TODO: ');
-  console.log('TODO: ');
-  // if (provider.boot !== undefined) {
-    // return provider
-  // };
+  if (provider.boot !== undefined) {
+    return this.call(provider.boot);
+  }
+};
+
+Application.prototype.isDownForMaintenance = function() {
+  return config('app.underMaintenance');
 };
 
 module.exports = new Application;

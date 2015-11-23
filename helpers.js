@@ -24,11 +24,13 @@ global.config = function (path, defaultValue) {
   return app.make('Config').get(path, defaultValue);
 };
 
-global.exception = function (exceptionName) {
-  var app = require(basePath('app/foundation/Application'));
-  var exceptionInstance = require(basePath('app/exceptions/' + exceptionName));
+global.exception = function (exception, code, message) {
+  if (typeof exception === 'string') {
+    var exceptionInstance = require(basePath('app/exceptions/' + exception));
+    exception = new exceptionInstance(code, message);
+  };
 
-  throw new exceptionInstance;
+  throw exception;
 };
 
 /**

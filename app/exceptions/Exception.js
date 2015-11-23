@@ -1,8 +1,9 @@
 'use strict';
 
-function Exception(message) {
+function Exception(code, message) {
   this.name = this.name || '<unnamed> Exception';
-  this.message = message;
+  this.code = code || 500;
+  this.message = message || '';
   this.stack = (new Error()).stack;
 }
 Exception.prototype = new Error;
